@@ -1,0 +1,119 @@
+[gd_scene load_steps=17 format=3 uid="uid://b5jbi1uaflqim"]
+
+[ext_resource type="Script" path="res://3rdPersonCharacter/scripts/player.gd" id="1_g82pe"]
+[ext_resource type="Script" path="res://3rdPersonCharacter/scripts/input.gd" id="1_mkt53"]
+[ext_resource type="Script" path="res://3rdPersonCharacter/scripts/Model.gd" id="2_0dryw"]
+[ext_resource type="Script" path="res://3rdPersonCharacter/movesets/idle.gd" id="3_sbowf"]
+[ext_resource type="Script" path="res://3rdPersonCharacter/movesets/walk.gd" id="4_j3ip5"]
+[ext_resource type="Script" path="res://3rdPersonCharacter/movesets/run.gd" id="6_hojan"]
+[ext_resource type="Script" path="res://3rdPersonCharacter/scripts/Cam.gd" id="7_pg62a"]
+[ext_resource type="PackedScene" uid="uid://dsdkxvrjr6nfv" path="res://3rdPersonCharacter/assets/JacketMan.fbx" id="8_o1lth"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tya72"]
+animation = &"Man|idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_oyis3"]
+animation = &"Man|run"
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_ky0yc"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_eeqsq"]
+animation = &"Man|walk"
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_5vw17"]
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_tb3f4"]
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_felnq"]
+graph_offset = Vector2(-544.32, 279.36)
+nodes/Idle/node = SubResource("AnimationNodeAnimation_tya72")
+nodes/Idle/position = Vector2(-170, 140)
+nodes/Run/node = SubResource("AnimationNodeAnimation_oyis3")
+nodes/Run/position = Vector2(-460, 460)
+nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_ky0yc")
+nodes/TimeScale/position = Vector2(-300, 470)
+nodes/Walk/node = SubResource("AnimationNodeAnimation_eeqsq")
+nodes/Walk/position = Vector2(-370, 290)
+nodes/WalkIdle/node = SubResource("AnimationNodeBlend2_5vw17")
+nodes/WalkIdle/position = Vector2(110, 150)
+nodes/WalkRun/node = SubResource("AnimationNodeBlend2_tb3f4")
+nodes/WalkRun/position = Vector2(-170, 290)
+node_connections = [&"TimeScale", 0, &"Run", &"WalkIdle", 0, &"Idle", &"WalkIdle", 1, &"WalkRun", &"WalkRun", 0, &"Walk", &"WalkRun", 1, &"TimeScale", &"output", 0, &"WalkIdle"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_4yy3e"]
+
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("character") groups=["player"]]
+script = ExtResource("1_g82pe")
+character = NodePath("JacketMan")
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+root_node = NodePath("../JacketMan")
+tree_root = SubResource("AnimationNodeBlendTree_felnq")
+anim_player = NodePath("../JacketMan/AnimationPlayer")
+parameters/TimeScale/scale = 1.25
+parameters/WalkIdle/blend_amount = 1.0
+parameters/WalkRun/blend_amount = 0.0
+
+[node name="Collider" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_4yy3e")
+
+[node name="Input" type="Node" parent="."]
+script = ExtResource("1_mkt53")
+
+[node name="Model" type="Node" parent="." node_paths=PackedStringArray("spring_arm", "player_model", "player_skeleton", "animation_tree")]
+script = ExtResource("2_0dryw")
+spring_arm = NodePath("../SpringPivot")
+player_model = NodePath("../JacketMan")
+player_skeleton = NodePath("../JacketMan/Man/Skeleton3D")
+animation_tree = NodePath("../AnimationTree")
+
+[node name="Idle" type="Node" parent="Model"]
+script = ExtResource("3_sbowf")
+
+[node name="Walk" type="Node" parent="Model"]
+script = ExtResource("4_j3ip5")
+walk_speed = 3.5
+
+[node name="Run" type="Node" parent="Model"]
+script = ExtResource("6_hojan")
+run_speed = 7.0
+
+[node name="SpringPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+script = ExtResource("7_pg62a")
+
+[node name="SpringArm3D" type="SpringArm3D" parent="SpringPivot"]
+spring_length = 2.5
+
+[node name="Camera3D" type="Camera3D" parent="SpringPivot/SpringArm3D"]
+
+[node name="JacketMan" parent="." instance=ExtResource("8_o1lth")]
+
+[node name="Skeleton3D" parent="JacketMan/Man" index="0"]
+bones/0/position = Vector3(0.00783934, 0.916265, -0.0204481)
+bones/0/rotation = Quaternion(-0.0157519, 0.0328015, -0.00487768, 0.999326)
+bones/1/rotation = Quaternion(-0.0418505, -0.0370215, 0.0105239, 0.998382)
+bones/2/rotation = Quaternion(-0.0201426, -0.0528717, -0.0213402, 0.99817)
+bones/3/rotation = Quaternion(-0.0191066, -0.0526598, -0.0228899, 0.998167)
+bones/4/rotation = Quaternion(0.00440471, 0.0330719, -0.0115325, 0.999377)
+bones/5/rotation = Quaternion(0.0380367, 0.091877, 0.0342547, 0.994454)
+bones/8/rotation = Quaternion(0.540163, -0.413724, 0.642539, 0.352419)
+bones/9/rotation = Quaternion(0.375707, 0.136287, 0.201775, 0.89418)
+bones/10/rotation = Quaternion(-0.0746005, 0.0208839, 0.270714, 0.959538)
+bones/13/rotation = Quaternion(-0.585243, -0.374368, 0.62284, -0.359735)
+bones/14/rotation = Quaternion(0.396825, -0.151632, -0.110581, 0.898504)
+bones/15/rotation = Quaternion(-0.0761276, -0.00911629, -0.121175, 0.989666)
+bones/18/rotation = Quaternion(0.110475, -0.0228798, 0.99276, 0.0412237)
+bones/19/rotation = Quaternion(0.547823, 0.0720675, -0.0198529, 0.833248)
+bones/20/rotation = Quaternion(-0.0397968, 0.924815, -0.37763, 0.0230124)
+bones/21/rotation = Quaternion(0.417115, 0.00807188, -0.00374605, 0.90881)
+bones/24/rotation = Quaternion(-0.072646, -0.27931, 0.957439, -0.00434235)
+bones/25/rotation = Quaternion(0.32801, -0.0174163, -0.0297243, 0.944046)
+bones/26/rotation = Quaternion(-0.0309842, 0.869428, -0.492816, 0.0163749)
+bones/27/rotation = Quaternion(0.387124, -0.00793784, 0.00337732, 0.921988)
+
+[node name="AnimationPlayer" parent="JacketMan" index="1"]
+active = false
+
+[editable path="JacketMan"]
